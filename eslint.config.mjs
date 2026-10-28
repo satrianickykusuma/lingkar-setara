@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Output of `netlify build` when deploying from the CLI: generated bundles,
+    // not source. Without this, linting reports thousands of errors from them.
+    ".netlify/**",
   ]),
 ]);
 

@@ -113,7 +113,7 @@ export default async function QrPage() {
                 </p>
               ) : null}
               <p className="mt-2 text-xs">
-                {`Dibuat ${meta.generatedAt}. Alamat LAN bisa berubah setelah router menyalakan ulang; kode yang sudah dicetak tidak bisa diubah.`}
+                {`Dibuat ${formatGenerated(meta.generatedAt)}. Selama situs tetap di alamat ini, kode yang sudah dicetak tetap berlaku — dan kode yang sudah tercetak tidak bisa diubah kalau alamatnya berganti.`}
               </p>
             </div>
 
@@ -224,4 +224,21 @@ export default async function QrPage() {
 /** The module is generated; treat a missing/empty base as "not generated yet". */
 function hasQr(): boolean {
   return typeof qrMeta.base === "string" && qrMeta.base.length > 0;
+}
+
+/**
+ * `generatedAt` is written by `tools/make_qr.py` in local time without a zone
+ * suffix, so `new Date()` would read it as UTC and shift the displayed time.
+ * Parsing the parts and formatting them by hand keeps what is shown truthful.
+ */
+function formatGenerated(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!match) return value;
+  const [, year, month, day, hour, minute] = match;
+  const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+  ];
+  const monthName = months[Number(month) - 1] ?? month;
+  return `${Number(day)} ${monthName} ${year}, ${hour}.${minute}`;
 }
