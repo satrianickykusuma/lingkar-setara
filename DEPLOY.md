@@ -1,8 +1,23 @@
 # Panduan deploy: Netlify + Upstash
 
-Ditulis untuk kondisi di komputer ini: **Windows, PowerShell, tanpa Git**. Karena
-itu jalur utamanya memakai **Netlify CLI**, yang mengunggah langsung dari folder —
-tidak perlu GitHub dan tidak perlu zip.
+> ## Status: jangan pakai `netlify deploy --build`
+>
+> `netlify deploy --build --prod` **gagal** di proyek ini dengan
+> `MissingBlobsEnvironmentError` pada langkah *Uploading blobs*. Penyebabnya bukan
+> kode aplikasi, melainkan Netlify: runtime Next.js membutuhkan **Blobs context**
+> yang hanya disuntikkan ketika build berjalan **di server Netlify**. Build lokal
+> lewat CLI tidak mendapatkannya.
+>
+> Sudah dipastikan: CLI 27.15.0 (versi terbaru) juga gagal, dan pengguna lain
+> melaporkan hal sama —
+> [CLI deploys only](https://answers.netlify.com/t/missingblobsenvironmenterror-502-on-cli-deploys-only-persists-after-the-sydney-blobs-incident-fix/164135),
+> [fresh sites](https://answers.netlify.com/t/missingblobsenvironmenterror-on-fresh-sites/164777).
+>
+> **Karena itu build harus dilakukan di server Netlify, dan itu hanya bisa lewat
+> repo Git.** Jalur di bawah sudah disesuaikan.
+
+Ditulis untuk kondisi di komputer ini: **Windows, PowerShell, tanpa Git terpasang**.
+Lihat lampiran untuk memasang Git tanpa hak admin.
 
 Kalau nanti ingin deploy otomatis setiap kali kode berubah, lihat **Lampiran: jalur
 GitHub** di bagian akhir.
@@ -23,46 +38,68 @@ Yang tersisa: **membuat situs di Netlify, mengisi 5 environment variable, deploy
 
 ---
 
-## 1. Masuk ke Netlify dari terminal
+## 1. Aktifkan Git dan GitHub CLI untuk sesi ini
+
+Keduanya portable, tidak masuk PATH, jadi tambahkan per jendela PowerShell:
 
 ```powershell
+$env:PATH = "C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\git\cmd;C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\gh\bin;" + $env:PATH
+
 cd C:\Users\Admin\Documents\deepseek-harness\default-workspace\lingkar-setara
-npx netlify-cli login
+git --version
+gh --version
 ```
 
-Browser akan terbuka. Klik **Authorize**. Setelah muncul "Logged in", tutup tabnya
-dan kembali ke terminal.
+## 2. Masuk ke GitHub
 
-Kalau `npx` menanyakan "Need to install the following packages…", jawab **y**.
-
-> Tidak perlu `npm install -g`. `npx` menjalankan versi terbaru tanpa memasangnya
-> permanen.
-
----
-
-## 2. Buat situsnya (deploy pertama)
+Repo lokal **sudah di-commit**, jadi tinggal diunggah. Butuh akun GitHub (gratis);
+kalau belum punya, `gh auth login` akan mengarahkan ke pendaftaran.
 
 ```powershell
-npx netlify-cli deploy --build --prod
+gh auth login
 ```
 
-Perintah ini akan:
+Jawab berurutan:
 
-1. Bertanya **"No site linked. Create a new site?"** → pilih **Create & configure a
-   new site**
-2. Bertanya nama tim/akun → pilih akun Anda (biasanya nama Anda)
-3. Bertanya nama situs → tekan **Enter** untuk nama acak, atau isi misalnya
-   `kedai-tuli-bersama` (kalau sudah dipakai orang lain, ganti)
-4. Menjalankan `npm run build` (2–3 menit, karena 107 MB klip)
-5. Mengunggah dan memberi Anda URL, misalnya
-   `https://kedai-tuli-bersama.netlify.app`
+1. **GitHub.com**
+2. **HTTPS**
+3. **Login with a web browser**
+4. Catat kode 8 karakter yang muncul (mis. `A1B2-C3D4`)
+5. Tekan **Enter** → browser terbuka → tempel kode → **Authorize**
 
-**Deploy pertama ini memang belum lengkap** — environment variable belum ada. Itu
-normal dan akan diperbaiki di langkah berikutnya. Jangan bagikan URL-nya dulu.
+Tidak perlu Personal Access Token.
+
+## 3. Buat repo dan unggah
+
+```powershell
+gh repo create lingkar-setara --public --source . --remote origin --push
+```
+
+Satu perintah ini membuat repo, memasang remote, dan mengunggah 188 berkas termasuk
+29 klip. Tunggu sampai selesai (112 MB).
+
+Verifikasi:
+
+```powershell
+gh repo view --web
+```
+
+## 4. Sambungkan repo ke situs Netlify yang sudah ada
+
+Jangan buat situs baru — situs Anda sudah terbuat (`siteId 28e5557a-…`), jadi URL-nya
+tetap.
+
+> Buka <https://app.netlify.com> → pilih situs Anda → **Site configuration** →
+> **Build & deploy** → **Continuous deployment** → **Link repository** →
+> **GitHub** → pilih `lingkar-setara`
+
+Build settings otomatis dari `netlify.toml` (command `npm run build`, publish
+`.next`, plugin Next.js). Deploy pertama akan langsung berjalan di server Netlify —
+di sinilah error Blobs tadi hilang.
 
 ---
 
-## 3. Isi 5 environment variable
+## 5. Isi 5 environment variable
 
 Jalankan satu per satu, **ganti bagian dalam tanda kutip**:
 
@@ -105,21 +142,24 @@ terus di HTTPS.
 
 ---
 
-## 4. Deploy ulang
+## 6. Deploy ulang
 
 Environment variable dibaca saat function berjalan, jadi deploy ulang membuat
-situsnya memakai database:
+situsnya memakai database. Sekarang deploy terjadi lewat Git — Netlify build di
+servernya sendiri:
 
 ```powershell
-npx netlify-cli deploy --build --prod
+git commit --allow-empty -m "Terapkan environment variable"
+git push
 ```
 
-Tunggu sampai muncul **"Deploy is live!"** beserta URL-nya. **Inilah URL final
-Anda** — catat.
+Atau dari dashboard: **Deploys** → **Trigger deploy** → **Deploy site**.
+
+Tunggu sampai selesai. **Inilah URL final Anda** — catat.
 
 ---
 
-## 5. Uji sampai benar-benar jalan
+## 7. Uji sampai benar-benar jalan
 
 Buka URL itu di browser, lalu periksa berurutan:
 
@@ -135,7 +175,7 @@ Kalau semua lolos, **deploy selesai.**
 
 ---
 
-## 6. Buat QR untuk domain Netlify
+## 8. Buat QR untuk domain Netlify
 
 QR yang ada sekarang masih menunjuk `192.168.1.9:3001` dan tidak berguna setelah
 pindah. Ganti:
@@ -144,8 +184,9 @@ pindah. Ganti:
 cd C:\Users\Admin\Documents\deepseek-harness\default-workspace
 python tools\make_qr.py --url https://URL-SITUS-ANDA.netlify.app
 cd lingkar-setara
-npm run build
-npx netlify-cli deploy --build --prod
+git add .
+git commit -m "QR untuk domain Netlify"
+git push
 ```
 
 Lalu buka `/qr` di situs. Harus bertuliskan **"Kode ini cocok dengan alamat yang
@@ -156,7 +197,7 @@ Setelah itu kartu meja (`/qr/kartu-meja.png`) siap dicetak.
 
 ---
 
-## 7. Ganti token Upstash (penting)
+## 9. Ganti token Upstash (penting)
 
 Token yang Anda pakai sekarang pernah tertulis di riwayat percakapan. Setelah situs
 jalan dan teruji:
@@ -167,7 +208,8 @@ jalan dan teruji:
 
 ```powershell
 npx netlify-cli env:set UPSTASH_REDIS_REST_TOKEN "TOKEN_BARU"
-npx netlify-cli deploy --build --prod
+git commit --allow-empty -m "Token Upstash baru"
+git push
 ```
 
 Dan di `.env.local` lokal (baris `UPSTASH_REDIS_REST_TOKEN=`).
@@ -203,11 +245,51 @@ npx netlify-cli status
 
 ---
 
-## Lampiran: jalur GitHub (opsional, untuk auto-deploy)
+## Lampiran: memasang Git tanpa admin
 
-Hanya kalau nanti ingin Netlify build otomatis setiap `git push`. Butuh
-**instal Git for Windows** dulu (<https://git-scm.com/download/win>) — di komputer
-ini belum ada.
+Installer Git for Windows dan `winget install Git.Git` sama-sama gagal di komputer
+ini (butuh elevation: `0x8A150001`). Solusinya **PortableGit** — cukup diekstrak, tidak
+ada instalasi sistem:
+
+```powershell
+# unduh sekali, lalu ekstrak (tanpa admin)
+# https://github.com/git-for-windows/git/releases → PortableGit-*-64-bit.7z.exe
+& "$env:USERPROFILE\Downloads\PortableGit-2.56.0.4-64-bit.7z.exe" -y -o"C:\path\git"
+```
+
+Di mesin ini sudah terpasang di:
+
+```
+C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\git\cmd\git.exe
+```
+
+Karena tidak masuk PATH, tambahkan per sesi:
+
+```powershell
+$env:PATH = "C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\git\cmd;" + $env:PATH
+git --version
+```
+
+GitHub CLI juga tersedia portable, sehingga **tidak perlu Personal Access Token**:
+
+```
+C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\gh\bin\gh.exe
+```
+
+```powershell
+$env:PATH = "C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\gh\bin;" + $env:PATH
+gh auth login                                  # browser + kode sekali pakai
+gh repo create lingkar-setara --public --source . --remote origin --push
+```
+
+Repo lokalnya sudah di-commit (`72bc9cf`, 188 berkas, 29 klip), jadi `gh repo create`
+langsung mengunggah semuanya.
+
+---
+
+## Lampiran lama: jalur GitHub manual
+
+Hanya kalau ingin mengurus remote sendiri tanpa `gh`:
 
 ```powershell
 git init
@@ -225,7 +307,7 @@ perlu mengisi environment variable yang sama seperti langkah 3.
 `.gitignore` sudah diperbaiki, jadi klip isyarat ikut ter-commit. Verifikasi:
 
 ```powershell
-git ls-files public/videos/isyarat | Measure-Object | Select-Object -ExpandProperty Count
+git ls-files "public/videos/isyarat/*.mp4" | Measure-Object | Select-Object -ExpandProperty Count
 ```
 
 Harus **29** (jumlah klip `.mp4`).
