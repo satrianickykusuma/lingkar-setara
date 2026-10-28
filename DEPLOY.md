@@ -38,51 +38,36 @@ Yang tersisa: **membuat situs di Netlify, mengisi 5 environment variable, deploy
 
 ---
 
-## 1. Aktifkan Git dan GitHub CLI untuk sesi ini
+## 1-3. Aktifkan alat, login, dan unggah — satu perintah
 
-Keduanya portable, tidak masuk PATH, jadi tambahkan per jendela PowerShell:
-
-```powershell
-$env:PATH = "C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\git\cmd;C:\Users\Admin\Documents\deepseek-harness\default-workspace\.tools\gh\bin;" + $env:PATH
-
-cd C:\Users\Admin\Documents\deepseek-harness\default-workspace\lingkar-setara
-git --version
-gh --version
-```
-
-## 2. Masuk ke GitHub
-
-Repo lokal **sudah di-commit**, jadi tinggal diunggah. Butuh akun GitHub (gratis);
-kalau belum punya, `gh auth login` akan mengarahkan ke pendaftaran.
+Jalankan **satu berkas** ini. Ia menyiapkan `git`/`gh`, mengalihkan konfigurasi ke
+dalam workspace, login, memasang kredensial git, lalu membuat repo dan mengunggah:
 
 ```powershell
-gh auth login
+cmd /c C:\Users\Admin\Documents\deepseek-harness\default-workspace\tools\publish-to-github.cmd
 ```
 
-Jawab berurutan:
+Saat `gh auth login` bertanya:
 
 1. **GitHub.com**
 2. **HTTPS**
 3. **Login with a web browser**
-4. Catat kode 8 karakter yang muncul (mis. `A1B2-C3D4`)
-5. Tekan **Enter** → browser terbuka → tempel kode → **Authorize**
+4. **Authenticate Git with your GitHub credentials?** → **YES**
+   (kalau dijawab No, skrip tetap menjalankan `gh auth setup-git`; tapi Yes lebih
+   sederhana)
+5. Salin kode 8 karakter → Enter → tempel di browser → **Authorize**
 
-Tidak perlu Personal Access Token.
+> **Kenapa `.cmd`, bukan `.ps1`:** execution policy Windows menolak menjalankan
+> skrip PowerShell yang tidak ditandatangani (`... is not digitally signed`). `.cmd`
+> tidak terpengaruh.
+>
+> **Kenapa konfigurasi dialihkan:** `gh` menulis ke `%APPDATA%\GitHub CLI` dan `git`
+> ke `%USERPROFILE%\.gitconfig`. Keduanya **ditolak** oleh kebijakan tulis folder
+> kerja ini, sehingga login tampak berhasil tetapi tidak tersimpan. Skrip mengarahkan
+> `GH_CONFIG_DIR` dan `GIT_CONFIG_GLOBAL` ke dalam workspace.
 
-## 3. Buat repo dan unggah
-
-```powershell
-gh repo create lingkar-setara --public --source . --remote origin --push
-```
-
-Satu perintah ini membuat repo, memasang remote, dan mengunggah 188 berkas termasuk
-29 klip. Tunggu sampai selesai (112 MB).
-
-Verifikasi:
-
-```powershell
-gh repo view --web
-```
+Kalau ingin melakukannya manual (misalnya di PowerShell biasa di luar aplikasi ini),
+lihat **Lampiran: memasang Git tanpa admin**.
 
 ## 4. Sambungkan repo ke situs Netlify yang sudah ada
 
