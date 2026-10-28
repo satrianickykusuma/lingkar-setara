@@ -1,8 +1,16 @@
+import Image from "next/image";
+
 import { Icon } from "@/components/ui/Icon";
-import { TutorialPlayer } from "@/components/sections/TutorialPlayer";
 import { belajarHero } from "@/data/belajar";
 
-/** Belajar Isyarat banner: headline, accessibility chips and the spotlight slot. */
+/**
+ * Belajar Isyarat banner.
+ *
+ * The old version held a "spotlight" player with a fake 03:45 duration, a fake
+ * timestamp and no video behind it. A learning page should not show a play button
+ * that plays nothing, so the slot now holds a photograph and a link to the real
+ * library below.
+ */
 export function BelajarHero() {
   return (
     <section
@@ -26,8 +34,8 @@ export function BelajarHero() {
             id="belajar-title"
             className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl"
           >
-            Belajar Isyarat:{" "}
-            <span className="text-electric">Pesan Mudah, Terhubung Akrab</span>
+            {belajarHero.titleLead}{" "}
+            <span className="text-electric">{belajarHero.titleAccent}</span>
           </h1>
 
           <p className="max-w-2xl text-base text-ink-muted md:text-lg">
@@ -46,7 +54,24 @@ export function BelajarHero() {
             ))}
           </ul>
 
-          <div className="glass-panel mt-4 flex flex-col gap-3 rounded-card border border-line-strong/50 p-5 shadow-card">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <a
+              href={belajarHero.cta.href}
+              className="bg-electric inline-flex items-center gap-2 rounded-pill px-5 py-2.5 text-sm font-bold text-on-brand shadow-btn transition-transform duration-300 hover:scale-105 focus-visible:outline-white"
+            >
+              <Icon name="playCircle" className="size-4" />
+              {belajarHero.cta.label}
+            </a>
+            <a
+              href="/menu"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-line-strong/70 px-5 py-2.5 text-sm font-bold text-ink transition-colors hover:text-ocean"
+            >
+              Lihat menu
+              <Icon name="arrowRight" className="size-4" />
+            </a>
+          </div>
+
+          <div className="glass-panel mt-2 flex flex-col gap-3 rounded-card border border-line-strong/50 p-5 shadow-card">
             <div className="flex items-center gap-3">
               <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-pill bg-ocean-soft text-ocean">
                 <Icon name="signLanguage" className="size-6" />
@@ -60,28 +85,32 @@ export function BelajarHero() {
                 </p>
               </div>
             </div>
-            <p className="text-sm text-ink-muted">
-              Semua kawan Tuli di kedai menguasai BISINDO. Tidak perlu lancar —
-              cukup mencoba, sisanya kami bantu.
-            </p>
+            <p className="text-sm text-ink-muted">{belajarHero.assistNote}</p>
           </div>
         </div>
 
         <div className="lg:col-span-5">
-          <TutorialPlayer
-            size="spotlight"
-            title={belajarHero.spotlight.heading}
-            description={belajarHero.spotlight.title}
-            duration={belajarHero.spotlight.duration}
-            image={belajarHero.spotlight.poster}
-            alt={belajarHero.spotlight.posterAlt}
-            icon="playCircle"
-            meta={[
-              belajarHero.spotlight.timestamp,
-              belajarHero.spotlight.speedLabel,
-              belajarHero.spotlight.note,
-            ]}
-          />
+          <figure className="overflow-hidden rounded-sheet border border-line-strong/40 bg-card shadow-card">
+            <div className="relative aspect-4/3 w-full">
+              <Image
+                src={belajarHero.poster}
+                alt={belajarHero.posterAlt}
+                fill
+                priority
+                sizes="(min-width: 1024px) 420px, 90vw"
+                className="object-cover"
+              />
+            </div>
+            <figcaption className="p-4">
+              <p className="font-display text-sm font-bold">
+                Dipandu langsung oleh kawan Tuli
+              </p>
+              <p className="mt-1 text-xs text-ink-muted">
+                Semua isyarat di halaman ini direkam di kedai ini, bukan animasi
+                atau ilustrasi.
+              </p>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>

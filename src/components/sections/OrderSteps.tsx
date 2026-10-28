@@ -51,6 +51,15 @@ export function OrderSteps() {
                 {step.title}
               </p>
               <p className="text-sm text-ink-muted">{step.description}</p>
+              {step.clip ? (
+                <a
+                  href={`#klip-${step.clip}`}
+                  className="mt-auto inline-flex items-center gap-1.5 text-xs font-bold text-ocean underline-offset-4 hover:underline"
+                >
+                  <Icon name="playCircle" className="size-4" />
+                  Tonton isyaratnya
+                </a>
+              ) : null}
             </li>
           ))}
         </ol>
