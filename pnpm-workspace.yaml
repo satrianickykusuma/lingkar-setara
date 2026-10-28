@@ -1,0 +1,7 @@
+# Windows/Turbopack needs a real (non-symlinked) node_modules tree inside the
+# project root, so pnpm links hoisted instead of the default isolated layout.
+nodeLinker: hoisted
+
+allowBuilds:
+  sharp: false
+  unrs-resolver: false

@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# The Next.js runtime turns API routes and dynamic pages into functions. Without it
+# Netlify would try to serve `.next` as a static folder and every route would 404.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # The build image is a normal one, so the local `workerThreads` workaround is off.
+  NETLIFY = "true"
+
+# Sign clips are large; let the CDN keep them for a day and revalidate in the
+# background. They change only when a recording is replaced and the site is rebuilt.
+[[headers]]
+  for = "/videos/isyarat/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# The cashier area must never be indexed.
+[[headers]]
+  for = "/kasir/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

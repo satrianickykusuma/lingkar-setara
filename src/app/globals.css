@@ -1,0 +1,313 @@
+@import "tailwindcss";
+
+/**
+ * Lingkar Setara design tokens.
+ *
+ * Palette: Lingkar Setara's "Electric Ocean & Sage" (navy, ocean blue, mint,
+ * sage greens) — the brand's own colours, so nothing here is invented.
+ * Structure, typography scale, radius, shadow and spacing philosophy follow the
+ * Savor by Areej system so both projects share one design language.
+ */
+@theme inline {
+  /* ── Brand palette ─────────────────────────────────────────────────────── */
+  --color-navy: #0f2f57; /* deep brand navy: footer, headings */
+  --color-navy-deep: #0a2040; /* hover on navy surfaces */
+  --color-ocean: #0066ff; /* Ocean Punch: primary CTA, links, accents */
+  --color-ocean-deep: #0050cb; /* hover / pressed state */
+  --color-ocean-soft: #e6f0ff; /* tinted fills and chips */
+  --color-mint: #00ff9d; /* Mint Electric: gradient end, glow accents */
+  --color-sky: #00bfff; /* Sky Vivid: gradient mid-stop, decorations */
+  --color-sage: #2ecc40; /* Sage Energy: success and vitality cues */
+  --color-leaft: #146b36; /* deep readable green for text on light surfaces */
+  --color-leaft-deep: #0f4f28;
+
+  /* ── Surfaces ──────────────────────────────────────────────────────────── */
+  /* Named `surface-base`, not `base`: a `--color-base` token would generate a
+     `.text-base` colour rule that collides with Tailwind's font-size utility of
+     the same name and silently overrides it on every element using `text-base`. */
+  --color-surface-base: #f5fafe; /* page background (brand surface-base) */
+  --color-surface: #eaf2e6; /* sage section band */
+  --color-card: #ffffff; /* cards pop against the tinted page */
+  --color-panel: #dcebd3; /* glass panel reference tone */
+  --color-line: #cfe3c4; /* hairline borders on tinted surfaces */
+  --color-line-strong: #a9cba4;
+
+  /* Sage-to-cream band used by the header and footer. */
+  --color-sage-soft: #e4ebd8;
+  --color-sage-mid: #eff3e5;
+  --color-cream: #fbf7ef;
+  --color-cream-deep: #f4ecdd;
+
+  /* ── Text ──────────────────────────────────────────────────────────────── */
+  --color-ink: #171c1f; /* on-surface */
+  /* Darkened from the brand's #424656 so 14–16px body copy clears AA on both
+     the light blue and the sage bands. */
+  --color-ink-muted: #363a49; /* on-surface-variant */
+  --color-on-brand: #ffffff;
+
+  /* ── Overlays (image legibility) ───────────────────────────────────────── */
+  --color-overlay: rgb(15 47 87 / 0.6);
+  --color-overlay-soft: rgb(15 47 87 / 0.42);
+  --color-glass: rgb(255 255 255 / 0.72);
+
+  /* Line-art ornament strokes (footer and menu backgrounds). */
+  --color-ornament-cream: #fff8e7;
+  --color-ornament-blue: #7fa3c7;
+  --color-ornament-sage: #9bbc8a;
+
+  /* ── Illustration pigments ─────────────────────────────────────────────────
+     Used only by the decorative ingredient ornaments, never for text or UI.
+     Desaturated on purpose so the drawings stay inside the brand's muted,
+     sage-and-cream range instead of introducing a new loud accent. */
+  --color-chili: #bf6a50;
+  --color-chili-deep: #96412a;
+  --color-citrus: #e3c05c;
+  --color-citrus-deep: #bb8f28;
+  --color-tomato: #c56a5c;
+  --color-tomato-deep: #97423a;
+  --color-mushroom: #d3c1a4;
+  --color-mushroom-deep: #a68d6a;
+  --color-leaf-fill: #a7c08c;
+  --color-leaf-deep: #6f8f56;
+
+  /* ── Typography ────────────────────────────────────────────────────────── */
+  --font-display: var(--font-jakarta), system-ui, sans-serif;
+  --font-body: var(--font-atkinson), system-ui, sans-serif;
+
+  /* ── Radius (Lingkar: buttons 8px, cards 16px, overlays 24px) ──────────── */
+  --radius-btn: 0.5rem;
+  --radius-media: 0.75rem;
+  --radius-card: 1rem;
+  --radius-sheet: 1.5rem;
+  --radius-pill: 9999px;
+
+  /* ── Elevation: tight core + wide Ocean-tinted ambient layer ───────────── */
+  --shadow-card: 0 2px 8px -2px rgb(0 102 255 / 0.08), 0 8px 24px -6px rgb(0 102 255 / 0.1);
+  --shadow-card-hover: 0 4px 12px -2px rgb(0 102 255 / 0.1), 0 16px 40px -8px rgb(0 102 255 / 0.2);
+  --shadow-glow: 0 4px 24px -4px rgb(0 102 255 / 0.1), 0 2px 8px -2px rgb(0 102 255 / 0.05);
+  --shadow-btn: 0 4px 12px rgb(0 102 255 / 0.2);
+  --shadow-btn-hover: 0 8px 24px rgb(0 102 255 / 0.3);
+
+  /* Custom easing shared by the motion utilities. */
+  --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/**
+ * Spacing scale (Lingkar xxs 4 · xs 8 · sm 12 · md 24 · lg 40 · xl 64 · xxl 96)
+ * maps onto Tailwind's default numeric scale: 1 4px · 2 8px · 3 12px · 6 24px ·
+ * 10 40px · 16 64px · 24 96px.
+ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ocean);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-ocean);
+    color: var(--color-on-brand);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1200px] px-5 md:px-8 lg:px-12;
+  }
+
+  .section-y {
+    @apply py-12 lg:py-20;
+  }
+
+  .eyebrow {
+    @apply font-body text-xs font-bold uppercase tracking-[0.08em] text-ink-muted;
+  }
+
+  /* Keyboard-only bypass link. */
+  .skip-link {
+    @apply sr-only;
+  }
+
+  .skip-link:focus-visible {
+    @apply not-sr-only fixed top-4 left-4 z-50 rounded-btn bg-navy px-5 py-3 text-sm font-bold text-on-brand;
+  }
+
+  /* Frosted navigation / overlay surface (Lingkar §Navigation, §Elevation). */
+  .glass-panel {
+    background-color: var(--color-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /**
+   * Opacity for the shaded ingredient ornaments. It has to sit on a wrapper
+   * rather than on each SVG path: fading every path separately would make their
+   * overlaps visible as darker seams, so the artwork is composited as one group.
+   */
+  .ornament-group {
+    opacity: 0.9;
+  }
+
+  /**
+   * Sage-to-cream brand band for the header and footer. The flourish is a soft
+   * radial bloom so the band reads as a gradient rather than two flat halves.
+   */
+  .band-gradient {
+    background-color: var(--color-cream);
+    background-image:
+      radial-gradient(
+        120% 160% at 8% 0%,
+        var(--color-sage-soft) 0%,
+        var(--color-sage-mid) 38%,
+        transparent 78%
+      ),
+      linear-gradient(120deg, var(--color-sage-soft) 0%, var(--color-cream) 62%, var(--color-cream-deep) 100%);
+  }
+
+  /* Slightly cooler variant for the sticky header, which sits over photos. */
+  .band-gradient-header {
+    background-color: var(--color-cream);
+    background-image: linear-gradient(
+      100deg,
+      var(--color-sage-soft) 0%,
+      var(--color-sage-mid) 45%,
+      var(--color-cream) 100%
+    );
+  }
+
+  /* Electric gradient headline treatment. */
+  .text-electric {
+    background-image: linear-gradient(135deg, var(--color-ocean), var(--color-sky));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Primary CTA: Ocean Punch → Mint Electric with an inner top highlight. */
+  .bg-electric {
+    background-image: linear-gradient(135deg, var(--color-ocean), var(--color-mint));
+  }
+}
+
+@layer utilities {
+  /* Carousel that hides its scrollbar but keeps native scrolling + snap. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Lift on hover, mirroring Lingkar's .hover-lift. */
+  .hover-lift {
+    transition:
+      transform 0.3s var(--ease-brand),
+      box-shadow 0.3s var(--ease-brand);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Soft fade-up used for section reveals; disabled by reduced-motion above. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .animate-rise {
+    animation: rise 0.6s var(--ease-brand) both;
+  }
+
+  /**
+   * Cart acknowledgement: the badge hops once when a dish is added. Applied by
+   * `CartFX` after the flying-image animation lands, so the feedback is tied to
+   * the item actually arriving rather than to the click.
+   */
+  @keyframes cart-pop {
+    0% {
+      transform: none;
+    }
+    35% {
+      transform: scale(1.45) rotate(-6deg);
+    }
+    70% {
+      transform: scale(0.94);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  [data-cart-badge][data-pop="true"] {
+    animation: cart-pop 0.45s var(--ease-brand);
+  }
+
+  @keyframes cart-ring {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  [data-cart-target]::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    border: 2px solid var(--color-mint);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  [data-cart-target][data-pop="true"]::after {
+    animation: cart-ring 0.6s var(--ease-brand);
+  }
+}
