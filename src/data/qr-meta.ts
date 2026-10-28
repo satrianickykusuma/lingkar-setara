@@ -16,8 +16,8 @@ export type QrMeta = {
 };
 
 export const qrMeta: QrMeta = {
-  "base": "http://192.168.1.9:3001",
-  "generatedAt": "2026-10-28T00:00:12",
+  "base": "https://lingkarsetara.netlify.app",
+  "generatedAt": "2026-10-28T15:19:36",
   "files": {
     "home": {
       "svg": "/qr/web.svg",
